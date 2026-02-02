@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>منصة إدارة السفراء</title>
+  <meta name="description" content="منصة خفيفة لإدارة السفراء: رفع CSV، احتساب التحصيل عبر كود الإحالة، احتساب الصناديق المفتوحة، أهداف يومية، ورسالة نشر مركزية." />
+  <link rel="icon" href="assets/logo.svg" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="bg">
+    <img class="bg-pattern" src="assets/pattern.svg" alt="" aria-hidden="true"/>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logo.svg" class="logo" alt="شعار" />
+      <div class="brand-titles">
+        <div class="brand-title">منصة إدارة السفراء</div>
+        <div class="brand-subtitle">نمط هادئ • واضح • عملي</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost" id="btnTheme" type="button" title="تبديل المظهر">🌗</button>
+      <button class="btn ghost" id="btnAdmin" type="button" title="لوحة الإدارة">لوحة الإدارة</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="card" id="viewLogin" aria-label="تسجيل الدخول">
+      <div class="card-head">
+        <h1>دخول السفير</h1>
+        <p class="muted">ادخل رقم جوالك لفتح صفحتك.</p>
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="phoneInput">رقم الجوال</label>
+        <input class="input" id="phoneInput" inputmode="tel" autocomplete="tel" placeholder="05xxxxxxxx" />
+        <button class="btn primary" id="btnLogin" type="button">دخول</button>
+      </div>
+
+      <div class="hint">
+        <span class="dot"></span>
+        <span>ملاحظة: هذه نسخة ثابتة (Static) مناسبة لنتفلاي. بيانات الإدارة تُحفظ داخل المتصفح (LocalStorage). للربط المركزي الحقيقي بين عدة أجهزة، أضف تخزين سحابي (Netlify Functions / Supabase).</span>
+      </div>
+    </section>
+
+    <section class="card hidden" id="viewAmbassador" aria-label="لوحة السفير">
+      <div class="card-head row">
+        <div>
+          <h2 id="ambName">—</h2>
+          <p class="muted" id="ambMeta">—</p>
+        </div>
+        <div class="row gap-sm">
+          <button class="btn" id="btnCopyLink" type="button">نسخ رابط صفحتي</button>
+          <button class="btn ghost" id="btnLogout" type="button">خروج</button>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="metric">
+          <div class="metric-label">تحصيل اليوم</div>
+          <div class="metric-value" id="mTodayAmount">—</div>
+          <div class="metric-sub" id="mTodayAmountSub">—</div>
+          <div class="progress">
+            <div class="bar" id="pTodayAmount"></div>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">صناديق اليوم</div>
+          <div class="metric-value" id="mTodayBoxes">—</div>
+          <div class="metric-sub" id="mTodayBoxesSub">—</div>
+          <div class="progress">
+            <div class="bar" id="pTodayBoxes"></div>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">مستواي اليوم</div>
+          <div class="metric-value" id="mTodayBadge">—</div>
+          <div class="metric-sub">تقدير بصري بسيط يساعدك تعرف أين وصلت</div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>إجمالي التحصيل</h3>
+            <p class="muted">حسب كود الإحالة المسجل لك</p>
+          </div>
+          <div class="grid grid-2">
+            <div class="kpi">
+              <div class="kpi-label">إجمالي المبلغ</div>
+              <div class="kpi-value" id="mAllAmount">—</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">عدد العمليات</div>
+              <div class="kpi-value" id="mAllDonations">—</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">إجمالي الصناديق</div>
+              <div class="kpi-value" id="mAllBoxes">—</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">آخر تحديث</div>
+              <div class="kpi-value" id="mLastSync">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>رسالة النشر</h3>
+            <p class="muted">انسخ النص وشارك الصورة بسهولة</p>
+          </div>
+          <div class="share">
+            <img id="shareImg" class="share-img" alt="صورة للنشر" />
+            <textarea id="shareMsg" class="textarea" rows="7" readonly></textarea>
+            <div class="row gap-sm">
+              <button class="btn primary" id="btnCopyMsg" type="button">نسخ الرسالة</button>
+              <button class="btn" id="btnDownloadImg" type="button">تحميل الصورة</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-foot muted">
+        تلميح: إذا واجهت مشكلة في فتح الصفحة، تأكد أن رقم جوالك مسجل في ملف السفراء.
+      </div>
+    </section>
+
+    <section class="card hidden" id="viewAdmin" aria-label="لوحة الإدارة">
+      <div class="card-head row">
+        <div>
+          <h2>لوحة الإدارة</h2>
+          <p class="muted">رفع الملفات، ضبط الأهداف، تجهيز رسالة النشر، واستعراض النتائج.</p>
+        </div>
+        <div class="row gap-sm">
+          <button class="btn ghost" id="btnBack" type="button">رجوع</button>
+        </div>
+      </div>
+
+      <div class="admin-gate" id="adminGate">
+        <div class="form-row">
+          <label class="label" for="adminPass">كلمة مرور الإدارة</label>
+          <input class="input" id="adminPass" type="password" placeholder="أدخل كلمة المرور" />
+          <button class="btn primary" id="btnAdminEnter" type="button">دخول</button>
+        </div>
+        <div class="hint">
+          <span class="dot"></span>
+          <span>الافتراضي: <b>admin123</b> — غيرها من داخل إعدادات الأهداف.</span>
+        </div>
+      </div>
+
+      <div class="hidden" id="adminBody">
+        <div class="grid grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>رفع ملفات CSV</h3>
+              <p class="muted">ارفع الملفات بالحقول المذكورة (العناوين في الصف الأول).</p>
+            </div>
+
+            <div class="uploader">
+              <div class="u-row">
+                <div class="u-title">ملف السفراء</div>
+                <div class="u-sub">name, phone, referral_code</div>
+                <input class="file" id="fileAmbassadors" type="file" accept=".csv,text/csv" />
+              </div>
+
+              <div class="u-row">
+                <div class="u-title">ملف التبرعات</div>
+                <div class="u-sub">amount, donor_phone, donation_date, referral_code</div>
+                <input class="file" id="fileDonations" type="file" accept=".csv,text/csv" />
+              </div>
+
+              <div class="u-row">
+                <div class="u-title">ملف الصناديق</div>
+                <div class="u-sub">phone, box_id, created_at</div>
+                <input class="file" id="fileBoxes" type="file" accept=".csv,text/csv" />
+              </div>
+
+              <div class="row gap-sm">
+                <button class="btn primary" id="btnSaveFiles" type="button">حفظ البيانات</button>
+                <button class="btn" id="btnLoadSamples" type="button">تحميل بيانات تجريبية</button>
+                <button class="btn danger" id="btnReset" type="button">مسح كل البيانات</button>
+              </div>
+              <div class="hint">
+                <span class="dot"></span>
+                <span id="syncStatus">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>أهداف اليوم</h3>
+              <p class="muted">تنعكس مباشرة في لوحة السفير.</p>
+            </div>
+
+            <div class="grid grid-2">
+              <div>
+                <label class="label" for="goalBoxes">هدف الصناديق اليوم</label>
+                <input class="input" id="goalBoxes" type="number" min="0" step="1" placeholder="مثال: 10" />
+              </div>
+              <div>
+                <label class="label" for="goalAmount">هدف التحصيل اليوم (﷼)</label>
+                <input class="input" id="goalAmount" type="number" min="0" step="1" placeholder="مثال: 2000" />
+              </div>
+            </div>
+
+            <div class="grid grid-2">
+              <div>
+                <label class="label" for="adminNewPass">تغيير كلمة المرور</label>
+                <input class="input" id="adminNewPass" type="password" placeholder="كلمة مرور جديدة" />
+              </div>
+              <div class="row align-end">
+                <button class="btn primary" id="btnSaveGoals" type="button">حفظ الأهداف</button>
+              </div>
+            </div>
+
+            <div class="hint">
+              <span class="dot"></span>
+              <span>يتم احتساب "اليوم" حسب توقيت الجهاز.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>رسالة النشر المركزية</h3>
+            <p class="muted">نص + صورة، تظهر لكل سفير في صفحته.</p>
+          </div>
+          <div class="grid grid-2">
+            <div>
+              <label class="label" for="adminShareMsg">نص الرسالة</label>
+              <textarea class="textarea" id="adminShareMsg" rows="8" placeholder="اكتب رسالة نشر جاهزة..."></textarea>
+              <div class="row gap-sm">
+                <button class="btn primary" id="btnSaveShare" type="button">حفظ الرسالة</button>
+                <button class="btn" id="btnInsertTemplate" type="button">إدراج قالب ذكي</button>
+              </div>
+              <div class="hint">
+                <span class="dot"></span>
+                <span>يمكنك استخدام المتغيرات: <code>{name}</code> <code>{ref}</code> <code>{today_amount}</code> <code>{today_boxes}</code></span>
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="adminShareImg">صورة النشر</label>
+              <input class="file" id="adminShareImg" type="file" accept="image/*" />
+              <div class="preview">
+                <img id="adminShareImgPreview" alt="معاينة الصورة" />
+              </div>
+              <div class="row gap-sm">
+                <button class="btn primary" id="btnSaveShareImg" type="button">حفظ الصورة</button>
+                <button class="btn danger" id="btnClearShareImg" type="button">حذف الصورة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head row">
+            <div>
+              <h3>لوحة المتابعة</h3>
+              <p class="muted">ترتيب السفراء حسب تحصيل اليوم (ثم الصناديق).</p>
+            </div>
+            <div class="row gap-sm">
+              <button class="btn" id="btnExportLeaderboard" type="button">تصدير CSV</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" id="leaderboard">
+              <thead>
+                <tr>
+                  <th>السفير</th>
+                  <th>الجوال</th>
+                  <th>كود الإحالة</th>
+                  <th>تحصيل اليوم</th>
+                  <th>صناديق اليوم</th>
+                  <th>إجمالي التحصيل</th>
+                  <th>إجمالي الصناديق</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="hint">
+            <span class="dot"></span>
+            <span>تقدر تضيف أعمدة إضافية في CSV، المنصة تتجاهل أي أعمدة غير معروفة.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer muted">
+    <span>© منصة إدارة السفراء — نسخة تجريبية قابلة للتطوير.</span>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

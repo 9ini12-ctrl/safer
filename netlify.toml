@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+# SPA-friendly redirect (in case you add client-side routing later)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
