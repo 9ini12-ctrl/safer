@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>واجهة مدير الفرع</title>
+  <link rel="stylesheet" href="./ui.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid-3">
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">أهلاً بك</p>
+          <h1 class="h-title">مدير فرع</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div class="section-title">اختيار فرع</div>
+        <input class="input" id="branchInput" placeholder="اكتب اسم الفرع… (مثال: مجمع أسامة بن زيد)"/>
+        <div class="mini">اضغط Enter للانتقال</div>
+
+        <div class="section-title">روابط جاهزة</div>
+        <div class="pillrow">
+          <a class="badge" href="./branch.html?branch=مجمع%20أسامة%20بن%20زيد">مجمع أسامة</a>
+          <a class="badge" href="./branch.html?branch=مجمع%20عمر%20بن%20الخطاب">مجمع عمر</a>
+          <a class="badge" href="./branch.html?branch=مجمع%20أبي%20بن%20كعب">مجمع أبي</a>
+        </div>
+
+        <div class="hr"></div>
+        <div class="pillrow">
+          <a class="badge" href="./admin.html">إدارة السفراء</a>
+          <a class="badge" href="./ambassador.html?id=12837">واجهة السفير</a>
+        </div>
+      </div>
+
+      <div class="phone" data-page="branch">
+        <div class="header">
+          <p class="h-hello">أهلاً بك</p>
+          <h1 class="h-title" id="branchName">—</h1>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="state" class="notice">جاري جلب البيانات…</div>
+
+        <div class="kpi">
+          <div class="label">إجمالي المحقق (تراكمي)</div>
+          <div class="value" id="kpi_achieved">—</div>
+        </div>
+
+        <div class="kpi">
+          <div class="label">محقق اليوم</div>
+          <div class="sub" id="kpi_today">—</div>
+        </div>
+
+        <div class="row">
+          <div class="small">الصناديق الفعّالة</div>
+          <div class="big" id="kpi_boxes">—</div>
+        </div>
+        <div class="row">
+          <div class="small">عدد السفراء</div>
+          <div class="big" id="kpi_count">—</div>
+        </div>
+        <div class="row">
+          <div class="small">ترتيب الفرع على الفروع</div>
+          <div class="big" id="kpi_rank">—</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">سفراء الفرع الأعلى اليوم</div>
+        <table class="table">
+          <thead>
+            <tr><th>الاسم</th><th>محقق اليوم</th><th>صناديق اليوم</th></tr>
+          </thead>
+          <tbody id="ambTbody"></tbody>
+        </table>
+
+        <a class="more" id="moreLink" href="./admin.html">المزيد</a>
+
+        <div class="footer-actions">
+          <button class="btn ghost" id="refreshBtn">تحديث</button>
+          <a class="btn" href="./admin.html">لوحة الإدارة</a>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">مساعدة</p>
+          <h1 class="h-title">الباراميتر</h1>
+        </div>
+        <div class="hr"></div>
+        <div class="notice">
+          افتح هذه الصفحة مع:
+          <div class="dashed">
+            <div class="code">?branch=اسم الفرع</div>
+            <div class="mini">مثال: branch.html?branch=مجمع%20أسامة%20بن%20زيد</div>
+          </div>
+          إذا ما أرسلت اسم فرع، سيختار أول فرع موجود في CSV.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById("branchInput");
+    input.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter"){
+        const v = (input.value||"").trim();
+        if (!v) return;
+        location.href = `branch.html?branch=${encodeURIComponent(v)}`;
+      }
+    });
+  </script>
+  <script src="./app.js"></script>
+</body>
+</html>

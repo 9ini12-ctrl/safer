@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>لوحة إدارة السفراء</title>
+  <link rel="stylesheet" href="./ui.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid-3">
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">أهلاً بك</p>
+          <h1 class="h-title">إدارة السفراء</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div class="topbar">
+          <span class="badge">عدد السجلات: <span id="countTxt">—</span></span>
+          <span class="badge hidden" id="filterBadge">فلترة</span>
+        </div>
+
+        <div class="section-title">بحث سريع</div>
+        <input class="input" id="search" placeholder="ابحث بالاسم / الجوال / رقم السفير…"/>
+        <div class="pillrow" id="searchList" style="margin-top:10px"></div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">تحديث البيانات</div>
+        <button class="btn" id="refreshBtn">تحديث الآن</button>
+        <div class="mini">يتم الجلب من: <b>/data/safaraa.csv</b> (مع كسر الكاش).</div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">روابط</div>
+        <div class="pillrow">
+          <a class="badge" href="./branch.html?branch=مجمع%20أسامة%20بن%20زيد">مدير فرع (مجمع أسامة)</a>
+          <a class="badge" href="./ambassador.html?id=12837">واجهة السفير</a>
+        </div>
+      </div>
+
+      <div class="phone" data-page="admin">
+        <div class="header">
+          <p class="h-hello">إعدادات يومية</p>
+          <h1 class="h-title">رسالة + صورة</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div class="section-title">رابط الصورة</div>
+        <input class="input" id="dailyImage" placeholder="ضع رابط الصورة هنا…"/>
+
+        <div class="section-title">نص رسالة اليوم</div>
+        <textarea class="input" id="dailyMessage" style="min-height:120px; resize:vertical"></textarea>
+
+        <div class="pillrow" style="margin-top:12px">
+          <button class="btn" id="saveBtn">حفظ</button>
+          <a class="btn ghost" href="./ambassador.html?id=12837">معاينة كـ سفير</a>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">معاينة</div>
+        <img id="previewImg" class="hidden" alt="preview" style="width:100%; border-radius:18px; border:1px solid rgba(0,0,0,.08); margin-bottom:10px"/>
+        <div class="dashed">
+          <div class="note">نص الرسالة</div>
+          <div class="big" id="previewMsg">—</div>
+        </div>
+
+        <div class="notice">
+          النسخة التجريبية تحفظ هذه الإعدادات على جهازك فقط (LocalStorage).
+          لو تبغاها “توصل للجميع” نخليها ملف JSON في GitHub مثل data/daily.json.
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">تقارير سريعة</p>
+          <h1 class="h-title">الأعلى</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div id="state" class="notice">جاري جلب البيانات…</div>
+
+        <div class="section-title">السفراء الأعلى اليوم</div>
+        <table class="table">
+          <thead>
+            <tr><th>الاسم</th><th>الفرع</th><th>محقق اليوم</th></tr>
+          </thead>
+          <tbody id="topAmbTbody"></tbody>
+        </table>
+
+        <div class="section-title">الفروع الأعلى اليوم</div>
+        <table class="table">
+          <thead>
+            <tr><th>الفرع</th><th>محقق اليوم</th><th>عدد السفراء</th></tr>
+          </thead>
+          <tbody id="topBranchTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Hide loading state once app.js finished rendering tables
+    const hideState = ()=> {
+      const st = document.getElementById("state");
+      if (st) st.classList.add("hidden");
+    };
+    // naive: wait a bit after DOM load
+    window.addEventListener("load", ()=> setTimeout(hideState, 900));
+  </script>
+  <script src="./app.js"></script>
+</body>
+</html>

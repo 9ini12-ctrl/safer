@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>واجهة السفير</title>
+  <link rel="stylesheet" href="./ui.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid-3">
+      <!-- Left phone: Manager (placeholder quick nav) -->
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">تنقّل سريع</p>
+          <h1 class="h-title">الواجهات</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div class="section-title">روابط سريعة</div>
+        <div class="pillrow">
+          <a class="badge" href="./ambassador.html?id=12837">السفير</a>
+          <a class="badge" href="./branch.html?branch=مجمع%20أسامة%20بن%20زيد">مدير فرع</a>
+          <a class="badge" href="./admin.html">إدارة السفراء</a>
+        </div>
+
+        <div class="notice">
+          ملاحظة: هذه نسخة تجريبية. اربط كل سفير برابطه عبر <b>?id=رقم_السفير</b>
+        </div>
+
+        <div class="section-title">طريقة التحديث</div>
+        <div class="notice">
+          حدّث الملف: <b>data/safaraa.csv</b> على GitHub، وبعدها Netlify بيعيد النشر تلقائيًا.
+        </div>
+      </div>
+
+      <!-- Middle phone: Admin preview summary (static) -->
+      <div class="phone">
+        <div class="header">
+          <p class="h-hello">أهلاً بك</p>
+          <h1 class="h-title">إدارة السفراء</h1>
+        </div>
+        <div class="hr"></div>
+
+        <div class="section-title">رفع الصورة / رسالة اليوم</div>
+        <div class="dashed">
+          <div class="note">تدار من صفحة الإدارة (admin.html)</div>
+          <button class="btn" onclick="location.href='./admin.html'">فتح لوحة الإدارة</button>
+          <div class="mini">حاليًا التخزين محلي (LocalStorage) للنسخة التجريبية.</div>
+        </div>
+
+        <div class="section-title">الأعلى تفاعلًا</div>
+        <table class="table">
+          <thead>
+            <tr><th>الاسم</th><th>اليوم</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>محمد بن خالد</td><td>800 ريال</td></tr>
+            <tr><td>سليمان بن حمود</td><td>300 ريال</td></tr>
+            <tr><td>فهد بن علي</td><td>150 ريال</td></tr>
+          </tbody>
+        </table>
+
+        <a class="more" href="./admin.html">المزيد</a>
+      </div>
+
+      <!-- Right phone: Ambassador -->
+      <div class="phone" data-page="ambassador">
+        <div class="header">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div>
+              <p class="h-hello" id="hello">تحميل…</p>
+              <h1 class="h-title" id="name">—</h1>
+              <div class="mini" id="updated"></div>
+            </div>
+            <span class="chip">رسالة اليوم</span>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="state" class="notice">جاري جلب البيانات…</div>
+
+        <div class="kpi">
+          <div class="label">المبلغ المحقق</div>
+          <div class="value" id="achieved">—</div>
+        </div>
+
+        <div class="kpi">
+          <div class="label">الصناديق السهمية الفعّالة</div>
+          <div class="sub" id="active_boxes">—</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">هدف اليوم <span class="small" id="goal_date"></span></div>
+
+        <div class="row">
+          <div class="big" id="goal_boxes_text">فتح 10 صناديق سهمية فعّالة</div>
+          <div class="small" id="boxes_ratio"></div>
+        </div>
+        <div class="progress" id="p_boxes" data-label="#boxes_ratio"><i></i></div>
+
+        <div style="height:12px"></div>
+
+        <div class="row">
+          <div class="big" id="goal_amount_text">تحقيق 2000 ريال</div>
+          <div class="small" id="amount_ratio"></div>
+        </div>
+        <div class="progress" id="p_amount" data-label="#amount_ratio"><i></i></div>
+
+        <div class="dashed">
+          <div class="note" id="coupon_note">سيفتح الكوبون عند التحقيق</div>
+          <div class="code" id="coupon_code">******-******-12837</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div class="small">ترتيبك على السفراء</div>
+          <div class="big" id="rank_amb">—</div>
+        </div>
+        <div class="row">
+          <div class="small">ترتيبك على سفراء فرعك</div>
+          <div class="big" id="rank_branch">—</div>
+        </div>
+        <div class="row">
+          <div class="small">ترتيب فرعك على الفروع</div>
+          <div class="big" id="rank_branches">—</div>
+        </div>
+
+        <div class="footer-actions">
+          <button class="btn ghost" id="refreshBtn">تحديث</button>
+          <button class="btn" id="shareBtn">مشاركة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
