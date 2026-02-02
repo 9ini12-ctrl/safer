@@ -153,6 +153,62 @@
       </div>
 
       <div class="hidden" id="adminBody">
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>مصادر البيانات (جلب مباشر)</h3>
+            <p class="muted">بدل رفع الملفات، ضع روابط CSV وسيتم الجلب تلقائيًا (مع حفظ نسخة مؤقتة).</p>
+          </div>
+
+          <div class="grid grid-2">
+            <div>
+              <label class="label" for="srcAmbassadors">رابط CSV — السفراء</label>
+              <input class="input" id="srcAmbassadors" placeholder="/data/ambassadors.csv" />
+              <div class="hint">
+                <span class="dot"></span>
+                <span>الحقول: <code>name,phone,referral_code</code></span>
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="srcDonations">رابط CSV — التبرعات</label>
+              <input class="input" id="srcDonations" placeholder="/data/donations.csv" />
+              <div class="hint">
+                <span class="dot"></span>
+                <span>الحقول: <code>amount,donor_phone,donation_date,referral_code</code></span>
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="srcBoxes">رابط CSV — الصناديق</label>
+              <input class="input" id="srcBoxes" placeholder="/data/boxes.csv" />
+              <div class="hint">
+                <span class="dot"></span>
+                <span>الحقول: <code>phone,box_id,created_at</code></span>
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="srcAutoRefresh">تحديث تلقائي كل (دقيقة)</label>
+              <input class="input" id="srcAutoRefresh" type="number" min="0" step="1" placeholder="مثال: 10 (أو 0 لإيقافه)" />
+              <div class="hint">
+                <span class="dot"></span>
+                <span>ملاحظة: الجلب من روابط خارجية قد يفشل بسبب CORS. الأفضل استخدام نفس الدومين (مثل مجلد <code>/data</code>) أو روابط GitHub Raw.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row gap-sm">
+            <button class="btn primary" id="btnSaveSources" type="button">حفظ المصادر</button>
+            <button class="btn" id="btnFetchNow" type="button">جلب الآن</button>
+          </div>
+
+          <div class="hint">
+            <span class="dot"></span>
+            <span id="fetchStatus">—</span>
+          </div>
+        </div>
+
         <div class="grid grid-2">
           <div class="panel">
             <div class="panel-head">

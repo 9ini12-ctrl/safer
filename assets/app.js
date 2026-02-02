@@ -10,9 +10,11 @@ const LS = {
   share: "share_v1",
   sync: "sync_v1",
   session: "session_v1",
+  sources: "sources_v1",
 };
 
 const DEFAULTS = {
+  sources: { ambassadorsUrl: "/data/ambassadors.csv", donationsUrl: "/data/donations.csv", boxesUrl: "/data/boxes.csv", autoRefreshMin: 10 },
   settings: { goalBoxes: 10, goalAmount: 2000, adminPass: "admin123" },
   share: {
     msg:
@@ -166,6 +168,14 @@ function getShare(){
 }
 function setShare(next){
   saveJSON(LS.share, { ...getShare(), ...next });
+}
+
+function getSources(){
+  const s = loadJSON(LS.sources, null) || {};
+  return { ...DEFAULTS.sources, ...s };
+}
+function setSources(next){
+  saveJSON(LS.sources, { ...getSources(), ...next });
 }
 
 function getData(){
@@ -516,6 +526,65 @@ function csvEscape(v){
   return s;
 }
 
+
+async function fetchText(url){
+  const u = String(url || "").trim();
+  if(!u) throw new Error("empty url");
+  // cache bust
+  const bust = (u.includes("?") ? "&" : "?") + "_=" + Date.now();
+  const res = await fetch(u + bust, { cache: "no-store" });
+  if(!res.ok) throw new Error("http " + res.status);
+  return await res.text();
+}
+
+async function fetchAndStoreFromSources({ silent=false } = {}){
+  const sources = getSources();
+  const statusEl = document.getElementById("fetchStatus");
+  const setStatus = (m) => { if(statusEl) statusEl.textContent = m; };
+
+  try{
+    if(!silent) setStatus("جاري الجلب…");
+
+    const [aTxt, dTxt, bTxt] = await Promise.all([
+      fetchText(sources.ambassadorsUrl),
+      fetchText(sources.donationsUrl),
+      fetchText(sources.boxesUrl),
+    ]);
+
+    const a = parseCSV(aTxt);
+    const d = parseCSV(dTxt);
+    const b = parseCSV(bTxt);
+
+    const ambassadors = mapAmbassadors(a.rows);
+    const donations = mapDonations(d.rows);
+    const boxes = mapBoxes(b.rows);
+
+    setData({
+      ambassadors,
+      donations,
+      boxes,
+      sync: { lastSync: new Date().toLocaleString("ar-SA") }
+    });
+
+    const msg = `تم الجلب ✓ — السفراء: ${ambassadors.length} • التبرعات: ${donations.length} • الصناديق: ${boxes.length}`;
+    setStatus(msg);
+    if(!silent) toast("تم جلب البيانات");
+
+    // Refresh views
+    renderLeaderboard();
+    const session = getSession();
+    if(session?.phone){
+      const amb = getAmbassadorByPhone(session.phone);
+      if(amb) renderAmbassador(amb);
+    }
+  }catch(err){
+    console.error(err);
+    const msg = "فشل الجلب — تأكد من الرابط أو CORS";
+    setStatus(msg);
+    if(!silent) toast(msg);
+  }
+}
+
 // --- Init / events ---
 function init(){
   ensureDefaults();
@@ -604,6 +673,43 @@ function init(){
   });
 
   el("btnAdminEnter").addEventListener("click", adminUnlock);
+
+  // data sources (fetch)
+  const srcA = document.getElementById("srcAmbassadors");
+  const srcD = document.getElementById("srcDonations");
+  const srcB = document.getElementById("srcBoxes");
+  const srcR = document.getElementById("srcAutoRefresh");
+  const btnSaveSources = document.getElementById("btnSaveSources");
+  const btnFetchNow = document.getElementById("btnFetchNow");
+
+  if(srcA && srcD && srcB && srcR){
+    const s = getSources();
+    srcA.value = s.ambassadorsUrl || "";
+    srcD.value = s.donationsUrl || "";
+    srcB.value = s.boxesUrl || "";
+    srcR.value = (s.autoRefreshMin ?? 0);
+  }
+
+  if(btnSaveSources){
+    btnSaveSources.addEventListener("click", () => {
+      const next = {
+        ambassadorsUrl: (srcA?.value || "").trim() || "/data/ambassadors.csv",
+        donationsUrl: (srcD?.value || "").trim() || "/data/donations.csv",
+        boxesUrl: (srcB?.value || "").trim() || "/data/boxes.csv",
+        autoRefreshMin: Number(srcR?.value || 0),
+      };
+      setSources(next);
+      const s = getSources();
+      if(document.getElementById("fetchStatus")){
+        document.getElementById("fetchStatus").textContent = `تم حفظ المصادر — تحديث تلقائي: ${s.autoRefreshMin || 0} دقيقة`;
+      }
+      toast("تم حفظ مصادر البيانات");
+    });
+  }
+
+  if(btnFetchNow){
+    btnFetchNow.addEventListener("click", () => fetchAndStoreFromSources({ silent:false }));
+  }
 
   el("btnSaveGoals").addEventListener("click", () => {
     const goalBoxes = Number(el("goalBoxes").value || 0);
@@ -741,7 +847,16 @@ function init(){
   // Small help: if no data exists, show a gentle hint
   const data = getData();
   if((data.ambassadors||[]).length === 0){
-    setTimeout(()=> toast("ابدأ من لوحة الإدارة: ارفع ملف السفراء أولاً"), 600);
+    setTimeout(()=> toast("ابدأ من لوحة الإدارة: ضع مصادر الجلب أو ارفع ملف السفراء"), 600);
+  }
+
+  // Auto-fetch on load (lightweight, silent) — uses sources URLs
+  // If you prefer manual only, set autoRefreshMin=0 from admin.
+  fetchAndStoreFromSources({ silent:true });
+
+  const s2 = getSources();
+  if(Number(s2.autoRefreshMin) > 0){
+    setInterval(() => fetchAndStoreFromSources({ silent:true }), Number(s2.autoRefreshMin) * 60 * 1000);
   }
 }
 
