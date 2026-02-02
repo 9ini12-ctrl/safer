@@ -247,8 +247,8 @@ function toast(msg){
     color:"white", fontWeight:"700",
     maxWidth:"min(520px, calc(100vw - 32px))"
   });
-  if(document.documentElement.classList.contains("light")){
-    t.style.background="rgba(255,255,255,.85)";
+  if(!document.documentElement.classList.contains("dark")){
+    t.style.background="rgba(255,255,255,.92)";
     t.style.color="#111";
     t.style.border="1px solid rgba(0,0,0,.08)";
   }
@@ -396,12 +396,13 @@ function getSession(){
 }
 
 function applyTheme(){
-  const t = localStorage.getItem("theme_v1") || "dark";
-  document.documentElement.classList.toggle("light", t === "light");
+  // Light-first. If user never chose, default to light.
+  const t = localStorage.getItem("theme_v1") || "light";
+  document.documentElement.classList.toggle("dark", t === "dark");
 }
 function toggleTheme(){
-  const isLight = document.documentElement.classList.contains("light");
-  localStorage.setItem("theme_v1", isLight ? "dark" : "light");
+  const isDark = document.documentElement.classList.contains("dark");
+  localStorage.setItem("theme_v1", isDark ? "light" : "dark");
   applyTheme();
 }
 
